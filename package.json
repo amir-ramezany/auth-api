@@ -7,13 +7,20 @@
   "main": "src/server.js",
   "scripts": {
     "dev": "node --watch src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "migrate:create": "node-pg-migrate create --migrations-dir database/migrations",
+    "migrate:up": "node-pg-migrate up --migrations-dir database/migrations",
+    "migrate:down": "node-pg-migrate down --migrations-dir database/migrations"
   },
   "engines": {
     "node": ">=22"
   },
   "dependencies": {
     "dotenv": "^17.4.2",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "node-pg-migrate": "^9.0.0"
   }
 }
