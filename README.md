@@ -4,7 +4,7 @@ A phase-by-phase learning project for building authentication fundamentals with 
 
 ## Current phase
 
-Phase 2 provides the PostgreSQL persistence foundation and the initial users-table migration. Registration and authentication are intentionally deferred to later phases.
+Phase 3 provides secure account registration and password hashing. Login and token-based authentication are intentionally deferred to later phases.
 
 ## Requirements
 
@@ -81,3 +81,37 @@ Successful response:
   "status": "ok"
 }
 ```
+
+## Register a user
+
+```http
+POST /api/auth/register
+Content-Type: application/json
+```
+
+Example request:
+
+```json
+{
+  "name": "Amir",
+  "email": "amir@example.com",
+  "password": "ExamplePassword123"
+}
+```
+
+Successful registration returns HTTP `201` and public user information:
+
+```json
+{
+  "user": {
+    "id": "1",
+    "name": "Amir",
+    "email": "amir@example.com",
+    "role": "user",
+    "created_at": "2026-08-31T00:00:00.000Z",
+    "updated_at": "2026-08-31T00:00:00.000Z"
+  }
+}
+```
+
+Registration validates the name, email, and password. Passwords must contain at least eight characters, including a letter and a number. The original password is never stored or returned.
