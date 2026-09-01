@@ -4,7 +4,7 @@ A phase-by-phase learning project for building authentication fundamentals with 
 
 ## Current phase
 
-Phase 4 provides credential-based login and short-lived JWT access tokens. Refresh tokens and protected routes are intentionally deferred to later phases.
+Phase 5 provides access-token authentication middleware, protected routes, and basic role authorization. Refresh tokens, sessions, cookies, and logout are intentionally deferred to optional later phases.
 
 ## Requirements
 
@@ -151,3 +151,32 @@ Successful login returns HTTP `200`:
 ```
 
 Invalid emails and incorrect passwords both return the same `401` response. The access token is signed, not encrypted: its payload can be decoded, so it contains only the user ID, role, issue time, and expiration time. Send it to protected endpoints in later phases using `Authorization: Bearer <access-token>`.
+
+## Get the authenticated user
+
+```http
+GET /api/auth/me
+Authorization: Bearer <access-token>
+```
+
+A valid access token returns HTTP `200` with the current public user record. The middleware verifies the signature and expiration, reads the token's subject and role, and attaches them to `req.user`. Password hashes are never selected or returned by this endpoint.
+
+Authentication failures return HTTP `401`, including:
+
+- Missing access token
+- Malformed Bearer header
+- Invalid signature or token
+- Expired access token
+- A token whose user no longer exists
+
+## Admin authorization example
+
+```http
+GET /api/admin/example
+Authorization: Bearer <access-token>
+```
+
+This endpoint requires the `admin` role. A valid token for a normal user returns HTTP `403`.
+
+- `401 Unauthorized` means valid authentication is missing.
+- `403 Forbidden` means authentication succeeded, but the user lacks permission.

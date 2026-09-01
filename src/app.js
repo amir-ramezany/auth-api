@@ -1,5 +1,6 @@
 import express from 'express';
 
+import adminRouter from './routes/admin.routes.js';
 import authRouter from './routes/auth.routes.js';
 
 const app = express();
@@ -11,5 +12,6 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authRouter);
+app.use('/api/admin', adminRouter);
 
 export default app;

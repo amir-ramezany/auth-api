@@ -1,4 +1,8 @@
-import { loginUser, registerUser } from '../services/auth.service.js';
+import {
+  getCurrentUser,
+  loginUser,
+  registerUser,
+} from '../services/auth.service.js';
 import {
   validateLogin,
   validateRegistration,
@@ -43,6 +47,20 @@ export const login = async (req, res, next) => {
     return res.status(200).json(authentication);
   } catch (error) {
     if (error.code === 'INVALID_CREDENTIALS') {
+      return res.status(401).json({ message: error.message });
+    }
+
+    return next(error);
+  }
+};
+
+export const me = async (req, res, next) => {
+  try {
+    const user = await getCurrentUser(req.user.id);
+
+    return res.status(200).json({ user });
+  } catch (error) {
+    if (error.code === 'AUTHENTICATED_USER_NOT_FOUND') {
       return res.status(401).json({ message: error.message });
     }
 

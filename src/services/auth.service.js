@@ -1,6 +1,7 @@
 import {
   createUser,
   emailExists,
+  findPublicUserById,
   findUserByEmail,
 } from '../repositories/user.repository.js';
 import { hashPassword, verifyPassword } from '../utils/password.js';
@@ -70,4 +71,16 @@ export const loginUser = async ({ email, password }) => {
     tokenType: 'Bearer',
     user: publicUser,
   };
+};
+
+export const getCurrentUser = async (userId) => {
+  const user = await findPublicUserById(userId);
+
+  if (!user) {
+    const error = new Error('Authenticated user no longer exists');
+    error.code = 'AUTHENTICATED_USER_NOT_FOUND';
+    throw error;
+  }
+
+  return user;
 };

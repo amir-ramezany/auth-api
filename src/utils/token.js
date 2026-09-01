@@ -21,3 +21,8 @@ export const createAccessToken = ({ id, role }) =>
       expiresIn: ACCESS_TOKEN_EXPIRES_IN,
     },
   );
+
+export const verifyAccessToken = (token) =>
+  jwt.verify(token, accessTokenSecret, {
+    algorithms: ['HS256'],
+  });
