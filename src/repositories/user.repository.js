@@ -1,8 +1,19 @@
 import pool from '../config/db.js';
 
+export const emailExists = async (email) => {
+  const result = await pool.query(
+    'SELECT EXISTS(SELECT 1 FROM users WHERE email = $1) AS "exists"',
+    [email],
+  );
+
+  return result.rows[0].exists;
+};
+
 export const findUserByEmail = async (email) => {
   const result = await pool.query(
-    'SELECT id, email FROM users WHERE email = $1',
+    `SELECT id, name, email, password_hash, role, created_at, updated_at
+     FROM users
+     WHERE email = $1`,
     [email],
   );
 

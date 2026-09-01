@@ -49,3 +49,38 @@ export const validateRegistration = (input) => {
     },
   };
 };
+
+export const validateLogin = (input) => {
+  const errors = [];
+  const email = typeof input?.email === 'string' ? input.email.trim() : '';
+  const password = typeof input?.password === 'string' ? input.password : '';
+
+  if (
+    email.length > 320 ||
+    !EMAIL_PATTERN.test(email) ||
+    email.includes('..')
+  ) {
+    errors.push({
+      field: 'email',
+      message: 'A valid email address is required',
+    });
+  }
+
+  if (
+    password.length === 0 ||
+    Buffer.byteLength(password, 'utf8') > 72
+  ) {
+    errors.push({
+      field: 'password',
+      message: 'Password is required and must not exceed 72 UTF-8 bytes',
+    });
+  }
+
+  return {
+    errors,
+    value: {
+      email: email.toLowerCase(),
+      password,
+    },
+  };
+};

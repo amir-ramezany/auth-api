@@ -1,8 +1,13 @@
 import {
   createUser,
+  emailExists,
   findUserByEmail,
 } from '../repositories/user.repository.js';
-import { hashPassword } from '../utils/password.js';
+import { hashPassword, verifyPassword } from '../utils/password.js';
+import {
+  ACCESS_TOKEN_EXPIRES_IN,
+  createAccessToken,
+} from '../utils/token.js';
 
 const createDuplicateEmailError = () => {
   const error = new Error('An account with this email already exists');
@@ -11,7 +16,7 @@ const createDuplicateEmailError = () => {
 };
 
 export const registerUser = async ({ name, email, password }) => {
-  const existingUser = await findUserByEmail(email);
+  const existingUser = await emailExists(email);
 
   if (existingUser) {
     throw createDuplicateEmailError();
@@ -28,4 +33,41 @@ export const registerUser = async ({ name, email, password }) => {
 
     throw error;
   }
+};
+
+const createInvalidCredentialsError = () => {
+  const error = new Error('Invalid email or password');
+  error.code = 'INVALID_CREDENTIALS';
+  return error;
+};
+
+export const loginUser = async ({ email, password }) => {
+  const user = await findUserByEmail(email);
+
+  if (!user) {
+    throw createInvalidCredentialsError();
+  }
+
+  const passwordMatches = await verifyPassword(password, user.password_hash);
+
+  if (!passwordMatches) {
+    throw createInvalidCredentialsError();
+  }
+
+  const accessToken = createAccessToken(user);
+  const publicUser = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    created_at: user.created_at,
+    updated_at: user.updated_at,
+  };
+
+  return {
+    accessToken,
+    expiresIn: ACCESS_TOKEN_EXPIRES_IN,
+    tokenType: 'Bearer',
+    user: publicUser,
+  };
 };
