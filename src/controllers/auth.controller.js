@@ -67,3 +67,5 @@ export const me = async (req, res, next) => {
     return next(error);
   }
 };
+
+export const logout = (req, res) => res.status(204).send();

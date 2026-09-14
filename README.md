@@ -4,7 +4,7 @@ A phase-by-phase learning project for building authentication fundamentals with 
 
 ## Current phase
 
-Phase 5 provides access-token authentication middleware, protected routes, and basic role authorization. Refresh tokens, sessions, cookies, and logout are intentionally deferred to optional later phases.
+Phase 5 provides access-token authentication middleware, protected routes, basic role authorization, and a simple JWT logout endpoint. Refresh tokens, sessions, cookies, and server-side token revocation are intentionally deferred to optional later phases.
 
 ## Requirements
 
@@ -180,3 +180,14 @@ This endpoint requires the `admin` role. A valid token for a normal user returns
 
 - `401 Unauthorized` means valid authentication is missing.
 - `403 Forbidden` means authentication succeeded, but the user lacks permission.
+
+## Log out
+
+```http
+POST /api/auth/logout
+Authorization: Bearer <access-token>
+```
+
+With a valid access token, logout returns HTTP `204 No Content`. The client must then remove the access token from its own storage.
+
+This endpoint does not invalidate the JWT on the server: the current project has no refresh-token session or token-revocation store yet. The access token remains technically valid until its normal expiration. Server-side revocation will be introduced only when refresh-token sessions are explicitly added.
