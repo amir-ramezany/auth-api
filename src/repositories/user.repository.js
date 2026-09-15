@@ -41,3 +41,21 @@ export const createUser = async ({ name, email, passwordHash }) => {
 
   return result.rows[0];
 };
+
+export const revokeAccessToken = async ({ jti, expiresAt }) => {
+  await pool.query(
+    `INSERT INTO revoked_access_tokens (jti, expires_at)
+     VALUES ($1, $2)
+     ON CONFLICT (jti) DO NOTHING`,
+    [jti, expiresAt],
+  );
+};
+
+export const isAccessTokenRevoked = async (jti) => {
+  const result = await pool.query(
+    'SELECT EXISTS(SELECT 1 FROM revoked_access_tokens WHERE jti = $1) AS "exists"',
+    [jti],
+  );
+
+  return result.rows[0].exists;
+};

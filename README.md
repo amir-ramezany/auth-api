@@ -4,7 +4,7 @@ A phase-by-phase learning project for building authentication fundamentals with 
 
 ## Current phase
 
-Phase 5 provides access-token authentication middleware, protected routes, basic role authorization, and a simple JWT logout endpoint. Refresh tokens, sessions, cookies, and server-side token revocation are intentionally deferred to optional later phases.
+Phase 5 provides access-token authentication middleware, protected routes, basic role authorization, and JWT logout with server-side access-token revocation. Refresh tokens, sessions, and cookies are intentionally deferred to optional later phases.
 
 ## Requirements
 
@@ -190,4 +190,12 @@ Authorization: Bearer <access-token>
 
 With a valid access token, logout returns HTTP `204 No Content`. The client must then remove the access token from its own storage.
 
-This endpoint does not invalidate the JWT on the server: the current project has no refresh-token session or token-revocation store yet. The access token remains technically valid until its normal expiration. Server-side revocation will be introduced only when refresh-token sessions are explicitly added.
+Each access token contains a unique token ID (`jti`). Logout stores that ID in the `revoked_access_tokens` table until the token expires. Authentication checks this table, so the logged-out token immediately returns `401` and cannot be reused. Logging in again creates a new access token with a new `jti`.
+
+Apply the new migration before using real logout:
+
+```bash
+npm run migrate:up
+```
+
+The revocation records are intentionally kept until their tokens expire. A future cleanup task can remove expired records; refresh-token sessions are still not part of this implementation.

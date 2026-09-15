@@ -3,6 +3,8 @@ import {
   emailExists,
   findPublicUserById,
   findUserByEmail,
+  isAccessTokenRevoked as findRevokedAccessToken,
+  revokeAccessToken,
 } from '../repositories/user.repository.js';
 import { hashPassword, verifyPassword } from '../utils/password.js';
 import {
@@ -84,3 +86,10 @@ export const getCurrentUser = async (userId) => {
 
   return user;
 };
+
+export const logoutUser = async ({ jti, expiresAt }) => {
+  await revokeAccessToken({ jti, expiresAt });
+};
+
+export const isAccessTokenRevoked = async (jti) =>
+  findRevokedAccessToken(jti);

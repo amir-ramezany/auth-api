@@ -1,5 +1,6 @@
 import 'dotenv/config';
 
+import { randomUUID } from 'node:crypto';
 import jwt from 'jsonwebtoken';
 
 const accessTokenSecret = process.env.JWT_ACCESS_SECRET;
@@ -19,6 +20,7 @@ export const createAccessToken = ({ id, role }) =>
       algorithm: 'HS256',
       subject: String(id),
       expiresIn: ACCESS_TOKEN_EXPIRES_IN,
+      jwtid: randomUUID(),
     },
   );
 

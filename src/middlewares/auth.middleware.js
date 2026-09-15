@@ -1,9 +1,10 @@
 import { verifyAccessToken } from '../utils/token.js';
+import { isAccessTokenRevoked } from '../services/auth.service.js';
 
 const sendUnauthorized = (res, message) =>
   res.status(401).json({ message });
 
-export const authenticateAccessToken = (req, res, next) => {
+export const authenticateAccessToken = async (req, res, next) => {
   const authorization = req.get('authorization');
 
   if (!authorization) {
@@ -32,16 +33,27 @@ export const authenticateAccessToken = (req, res, next) => {
   }
 
   if (
+    payload === null ||
     typeof payload !== 'object' ||
     typeof payload.sub !== 'string' ||
+    typeof payload.jti !== 'string' ||
+    typeof payload.exp !== 'number' ||
     !['user', 'admin'].includes(payload.role)
   ) {
     return sendUnauthorized(res, 'Invalid access token');
   }
 
+  if (await isAccessTokenRevoked(payload.jti)) {
+    return sendUnauthorized(res, 'Access token has been revoked');
+  }
+
   req.user = {
     id: payload.sub,
     role: payload.role,
+  };
+  req.auth = {
+    jti: payload.jti,
+    expiresAt: new Date(payload.exp * 1000),
   };
 
   return next();

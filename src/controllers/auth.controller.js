@@ -1,6 +1,7 @@
 import {
   getCurrentUser,
   loginUser,
+  logoutUser,
   registerUser,
 } from '../services/auth.service.js';
 import {
@@ -68,4 +69,12 @@ export const me = async (req, res, next) => {
   }
 };
 
-export const logout = (req, res) => res.status(204).send();
+export const logout = async (req, res, next) => {
+  try {
+    await logoutUser(req.auth);
+
+    return res.status(204).send();
+  } catch (error) {
+    return next(error);
+  }
+};
